@@ -1,11 +1,43 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>🎵 Album Collection</h1>
-      <p>Discover amazing music albums</p>
+      <div>
+        <h1>🎵 Album Collection</h1>
+        <p>Discover amazing music albums</p>
+      </div>
+      <button class="cart-toggle" @click="toggleCart">
+        🛒 {{ itemCount }}
+      </button>
     </header>
 
+    <aside v-if="showCart" class="cart-panel">
+      <div class="cart-panel-header">
+        <h2>Your Cart</h2>
+        <button class="cart-close" @click="showCart = false">✕</button>
+      </div>
+      <div v-if="cartItems.length === 0" class="cart-empty">
+        Your cart is empty.
+      </div>
+      <ul v-else class="cart-list">
+        <li v-for="item in cartItems" :key="item.id" class="cart-item">
+          <div>
+            <p class="cart-item-title">{{ item.title }}</p>
+            <p class="cart-item-artist">{{ item.artist }}</p>
+            <p class="cart-item-price">${{ item.price.toFixed(2) }}</p>
+          </div>
+          <button class="remove-btn" @click="handleRemoveFromCart(item.id)">
+            Remove
+          </button>
+        </li>
+      </ul>
+      <div class="cart-summary">
+        <p>Items: {{ itemCount }}</p>
+        <p>Total: ${{ totalPrice.toFixed(2) }}</p>
+      </div>
+    </aside>
+
     <main class="main">
+      <p v-if="feedbackMessage" class="feedback">{{ feedbackMessage }}</p>
       <div v-if="loading" class="loading">
         <div class="spinner"></div>
         <p>Loading albums...</p>
@@ -21,6 +53,8 @@
           v-for="album in albums" 
           :key="album.id" 
           :album="album" 
+          :in-cart="isInCart(album.id)"
+          @add-to-cart="handleAddToCart"
         />
       </div>
     </main>
@@ -32,10 +66,15 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
 import type { Album } from './types/album'
+import { useCart } from './composables/useCart'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
+const showCart = ref<boolean>(false)
+const feedbackMessage = ref<string>('')
+let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
+const { cartItems, itemCount, totalPrice, addToCart, removeFromCart, isInCart } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -51,6 +90,31 @@ const fetchAlbums = async (): Promise<void> => {
   }
 }
 
+const setFeedback = (message: string): void => {
+  feedbackMessage.value = message
+  if (feedbackTimeout) {
+    clearTimeout(feedbackTimeout)
+  }
+  feedbackTimeout = setTimeout(() => {
+    feedbackMessage.value = ''
+  }, 1800)
+}
+
+const handleAddToCart = (album: Album): void => {
+  if (addToCart(album)) {
+    setFeedback(`Added "${album.title}" to cart`)
+  }
+}
+
+const handleRemoveFromCart = (albumId: number): void => {
+  removeFromCart(albumId)
+  setFeedback('Removed album from cart')
+}
+
+const toggleCart = (): void => {
+  showCart.value = !showCart.value
+}
+
 onMounted(() => {
   fetchAlbums()
 })
@@ -63,9 +127,12 @@ onMounted(() => {
 }
 
 .header {
-  text-align: center;
   margin-bottom: 3rem;
   color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header h1 {
@@ -82,6 +149,95 @@ onMounted(() => {
 .main {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.cart-toggle {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cart-panel {
+  max-width: 1200px;
+  margin: 0 auto 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.cart-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.cart-close {
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.cart-empty {
+  color: #666;
+  margin: 0.5rem 0 1rem;
+}
+
+.cart-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #eee;
+  padding: 0.75rem 0;
+}
+
+.cart-item-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cart-item-artist,
+.cart-item-price {
+  margin: 0.25rem 0 0;
+  color: #666;
+}
+
+.remove-btn {
+  align-self: center;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  font-weight: 700;
+}
+
+.feedback {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  color: #1d5e2a;
 }
 
 .loading {
@@ -147,8 +303,17 @@ onMounted(() => {
     padding: 1rem;
   }
   
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
   .header h1 {
     font-size: 2rem;
+  }
+
+  .cart-item {
+    flex-direction: column;
   }
   
   .albums-grid {
