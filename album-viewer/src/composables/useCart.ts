@@ -7,8 +7,6 @@ interface StorageLike {
 }
 
 const STORAGE_KEY = 'album-viewer-cart'
-const cartItems = ref<Album[]>([])
-let initialized = false
 
 const loadCart = (storage: StorageLike | null): Album[] => {
   if (!storage) return []
@@ -39,13 +37,10 @@ const getBrowserStorage = (): StorageLike | null => {
   return window.localStorage
 }
 
-export const useCart = (
+export const createCartStore = (
   storage: StorageLike | null = getBrowserStorage()
 ) => {
-  if (!initialized) {
-    cartItems.value = loadCart(storage)
-    initialized = true
-  }
+  const cartItems = ref<Album[]>(loadCart(storage))
 
   const addToCart = (album: Album): boolean => {
     if (cartItems.value.some((item) => item.id === album.id)) {
@@ -86,7 +81,5 @@ export const useCart = (
   }
 }
 
-export const resetCartForTests = (): void => {
-  cartItems.value = []
-  initialized = false
-}
+const sharedCartStore = createCartStore()
+export const useCart = () => sharedCartStore

@@ -74,6 +74,7 @@ const error = ref<string | null>(null)
 const showCart = ref<boolean>(false)
 const feedbackMessage = ref<string>('')
 const feedbackTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
+const FEEDBACK_DISPLAY_DURATION = 1800
 const { cartItems, itemCount, totalPrice, addToCart, removeFromCart, isInCart } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
@@ -97,7 +98,7 @@ const setFeedback = (message: string): void => {
   }
   feedbackTimeoutId.value = setTimeout(() => {
     feedbackMessage.value = ''
-  }, 1800)
+  }, FEEDBACK_DISPLAY_DURATION)
 }
 
 const handleAddToCart = (album: Album): void => {

@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { Album } from '../types/album'
-import { resetCartForTests, useCart } from './useCart'
+import { createCartStore } from './useCart'
 
 class MockStorage {
   private values = new Map<string, string>()
@@ -23,13 +23,9 @@ const sampleAlbum: Album = {
 }
 
 describe('useCart', () => {
-  beforeEach(() => {
-    resetCartForTests()
-  })
-
   it('adds albums and prevents duplicates', () => {
     const storage = new MockStorage()
-    const cart = useCart(storage)
+    const cart = createCartStore(storage)
 
     expect(cart.addToCart(sampleAlbum)).toBe(true)
     expect(cart.addToCart(sampleAlbum)).toBe(false)
@@ -39,7 +35,7 @@ describe('useCart', () => {
 
   it('removes albums from the cart', () => {
     const storage = new MockStorage()
-    const cart = useCart(storage)
+    const cart = createCartStore(storage)
 
     cart.addToCart(sampleAlbum)
     cart.removeFromCart(sampleAlbum.id)
@@ -52,14 +48,14 @@ describe('useCart', () => {
     const storage = new MockStorage()
     storage.setItem('album-viewer-cart', JSON.stringify([sampleAlbum]))
 
-    const cart = useCart(storage)
+    const cart = createCartStore(storage)
     expect(cart.itemCount.value).toBe(1)
     expect(cart.totalPrice.value).toBe(19.99)
   })
 
   it('clears albums and persists empty cart', () => {
     const storage = new MockStorage()
-    const cart = useCart(storage)
+    const cart = createCartStore(storage)
     cart.addToCart(sampleAlbum)
 
     cart.clearCart()
