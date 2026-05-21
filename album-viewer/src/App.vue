@@ -73,7 +73,7 @@ const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showCart = ref<boolean>(false)
 const feedbackMessage = ref<string>('')
-const feedbackTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
+const feedbackTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 const { cartItems, itemCount, totalPrice, addToCart, removeFromCart, isInCart } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
@@ -92,10 +92,10 @@ const fetchAlbums = async (): Promise<void> => {
 
 const setFeedback = (message: string): void => {
   feedbackMessage.value = message
-  if (feedbackTimeout.value) {
-    clearTimeout(feedbackTimeout.value)
+  if (feedbackTimeoutId.value) {
+    clearTimeout(feedbackTimeoutId.value)
   }
-  feedbackTimeout.value = setTimeout(() => {
+  feedbackTimeoutId.value = setTimeout(() => {
     feedbackMessage.value = ''
   }, 1800)
 }
@@ -120,8 +120,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  if (feedbackTimeout.value) {
-    clearTimeout(feedbackTimeout.value)
+  if (feedbackTimeoutId.value) {
+    clearTimeout(feedbackTimeoutId.value)
   }
 })
 </script>
