@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onBeforeUnmount, onMounted } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
 import type { Album } from './types/album'
@@ -73,7 +73,7 @@ const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showCart = ref<boolean>(false)
 const feedbackMessage = ref<string>('')
-let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
+const feedbackTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const { cartItems, itemCount, totalPrice, addToCart, removeFromCart, isInCart } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
@@ -92,10 +92,10 @@ const fetchAlbums = async (): Promise<void> => {
 
 const setFeedback = (message: string): void => {
   feedbackMessage.value = message
-  if (feedbackTimeout) {
-    clearTimeout(feedbackTimeout)
+  if (feedbackTimeout.value) {
+    clearTimeout(feedbackTimeout.value)
   }
-  feedbackTimeout = setTimeout(() => {
+  feedbackTimeout.value = setTimeout(() => {
     feedbackMessage.value = ''
   }, 1800)
 }
@@ -117,6 +117,12 @@ const toggleCart = (): void => {
 
 onMounted(() => {
   fetchAlbums()
+})
+
+onBeforeUnmount(() => {
+  if (feedbackTimeout.value) {
+    clearTimeout(feedbackTimeout.value)
+  }
 })
 </script>
 

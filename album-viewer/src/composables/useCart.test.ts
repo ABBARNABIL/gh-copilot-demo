@@ -56,4 +56,15 @@ describe('useCart', () => {
     expect(cart.itemCount.value).toBe(1)
     expect(cart.totalPrice.value).toBe(19.99)
   })
+
+  it('clears albums and persists empty cart', () => {
+    const storage = new MockStorage()
+    const cart = useCart(storage)
+    cart.addToCart(sampleAlbum)
+
+    cart.clearCart()
+
+    expect(cart.itemCount.value).toBe(0)
+    expect(storage.getItem('album-viewer-cart')).toBe('[]')
+  })
 })
