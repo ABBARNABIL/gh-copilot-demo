@@ -21,20 +21,43 @@
     </div>
     
     <div class="album-actions">
-      <button class="btn btn-primary">Add to Cart</button>
+      <button
+        class="btn btn-primary"
+        :class="{ 'btn-in-cart': inCart }"
+        @click="handleCartClick"
+      >
+        {{ inCart ? '✓ In Cart' : 'Add to Cart' }}
+      </button>
       <button class="btn btn-secondary">Preview</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Album } from '../types/album'
+import { useCart } from '../composables/useCart'
+import { useToast } from '../composables/useToast'
 
 interface Props {
   album: Album
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const { isInCart, toggleCart } = useCart()
+const { showToast } = useToast()
+
+const inCart = computed<boolean>(() => isInCart(props.album.id))
+
+const handleCartClick = (): void => {
+  const added = toggleCart(props.album)
+  showToast(
+    added
+      ? `Added "${props.album.title}" to cart`
+      : `Removed "${props.album.title}" from cart`
+  )
+}
 
 const handleImageError = (event: Event): void => {
   const target = event.target as HTMLImageElement
@@ -165,6 +188,14 @@ const handleImageError = (event: Event): void => {
 .btn-primary:hover {
   background: #5a6fd8;
   transform: translateY(-2px);
+}
+
+.btn-in-cart {
+  background: #2ecc71;
+}
+
+.btn-in-cart:hover {
+  background: #27ae60;
 }
 
 .btn-secondary {

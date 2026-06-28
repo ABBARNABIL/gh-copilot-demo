@@ -1,6 +1,14 @@
 <template>
   <div class="app">
     <header class="header">
+      <button
+        class="cart-icon-btn"
+        aria-label="Open cart"
+        @click="showCart = !showCart"
+      >
+        🛒
+        <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+      </button>
       <h1>🎵 Album Collection</h1>
       <p>Discover amazing music albums</p>
     </header>
@@ -24,6 +32,16 @@
         />
       </div>
     </main>
+
+    <CartPanel v-if="showCart" @close="showCart = false" />
+
+    <div class="toast-container">
+      <transition-group name="toast">
+        <div v-for="toast in toasts" :key="toast.id" class="toast">
+          {{ toast.message }}
+        </div>
+      </transition-group>
+    </div>
   </div>
 </template>
 
@@ -31,11 +49,18 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
+import CartPanel from './components/CartPanel.vue'
+import { useCart } from './composables/useCart'
+import { useToast } from './composables/useToast'
 import type { Album } from './types/album'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
+const showCart = ref<boolean>(false)
+
+const { count: cartCount } = useCart()
+const { toasts } = useToast()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -66,6 +91,78 @@ onMounted(() => {
   text-align: center;
   margin-bottom: 3rem;
   color: white;
+  position: relative;
+}
+
+.cart-icon-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  border-radius: 50px;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+.cart-icon-btn:hover {
+  background: white;
+  color: #667eea;
+  transform: scale(1.05);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1100;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(51, 51, 51, 0.95);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .header h1 {
@@ -149,6 +246,12 @@ onMounted(() => {
   
   .header h1 {
     font-size: 2rem;
+  }
+  
+  .cart-icon-btn {
+    position: static;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
   }
   
   .albums-grid {
