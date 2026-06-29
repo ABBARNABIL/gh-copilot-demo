@@ -36,7 +36,8 @@ export const useCart = () => {
   const itemCount = computed(() => cartItems.value.length)
   const totalPrice = computed(() =>
     cartItems.value.reduce(
-      (totalCents, album) => totalCents + Math.round(album.price * 100),
+      (accumulatedCents, album) =>
+        accumulatedCents + Math.round(album.price * 100),
       0
     ) / 100
   )
