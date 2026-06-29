@@ -79,21 +79,21 @@ onMounted(() => {
   fetchAlbums()
 })
 
-let feedbackTimeout: number | undefined
+let feedbackTimeoutId: number | undefined
 
-const stopFeedback = (): void => {
-  if (feedbackTimeout) {
-    window.clearTimeout(feedbackTimeout)
+const scheduleFeedbackClear = (): void => {
+  if (feedbackTimeoutId) {
+    window.clearTimeout(feedbackTimeoutId)
   }
 
-  feedbackTimeout = window.setTimeout(() => {
+  feedbackTimeoutId = window.setTimeout(() => {
     clearFeedback()
   }, 2500)
 }
 
 watch(feedbackMessage, (message) => {
   if (message) {
-    stopFeedback()
+    scheduleFeedbackClear()
   }
 })
 </script>
