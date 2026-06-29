@@ -32,10 +32,6 @@ const persistCart = (): void => {
   }
 }
 
-const showFeedback = (message: string): void => {
-  feedbackMessage.value = message
-}
-
 export const useCart = () => {
   const itemCount = computed(() => cartItems.value.length)
   const totalPrice = computed(() =>
@@ -47,13 +43,13 @@ export const useCart = () => {
 
   const addToCart = (album: Album): void => {
     if (isInCart(album.id)) {
-      showFeedback(`${album.title} is already in your cart`)
+      feedbackMessage.value = `${album.title} is already in your cart`
       return
     }
 
     cartItems.value = [...cartItems.value, album]
     persistCart()
-    showFeedback(`${album.title} added to cart`)
+    feedbackMessage.value = `${album.title} added to cart`
   }
 
   const removeFromCart = (albumId: number): void => {
@@ -62,14 +58,14 @@ export const useCart = () => {
     persistCart()
 
     if (album) {
-      showFeedback(`${album.title} removed from cart`)
+      feedbackMessage.value = `${album.title} removed from cart`
     }
   }
 
   const clearCart = (): void => {
     cartItems.value = []
     persistCart()
-    showFeedback('Cart cleared')
+    feedbackMessage.value = 'Cart cleared'
   }
 
   const clearFeedback = (): void => {

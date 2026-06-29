@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
 import CartPanel from './components/CartPanel.vue'
@@ -94,6 +94,12 @@ const scheduleFeedbackClear = (): void => {
 watch(feedbackMessage, (message) => {
   if (message) {
     scheduleFeedbackClear()
+  }
+})
+
+onUnmounted(() => {
+  if (feedbackTimeoutId) {
+    window.clearTimeout(feedbackTimeoutId)
   }
 })
 </script>
