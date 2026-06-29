@@ -50,4 +50,16 @@ describe('useCart', () => {
     expect(cart.itemCount.value).toBe(0)
     expect(window.localStorage.getItem('album-viewer-cart')).toBe('[]')
   })
+
+  it('clears all albums and persists an empty cart', async () => {
+    const { useCart } = await importCart()
+    const cart = useCart()
+
+    cart.addToCart(album)
+    cart.clearCart()
+
+    expect(cart.itemCount.value).toBe(0)
+    expect(cart.cartItems.value).toEqual([])
+    expect(window.localStorage.getItem('album-viewer-cart')).toBe('[]')
+  })
 })

@@ -79,7 +79,7 @@ onMounted(() => {
   fetchAlbums()
 })
 
-let feedbackTimeoutId: number | undefined
+let feedbackTimeoutId: ReturnType<typeof setTimeout> | undefined
 
 const scheduleFeedbackClear = (): void => {
   if (feedbackTimeoutId) {
