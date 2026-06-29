@@ -60,6 +60,7 @@ const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const isCartOpen = ref<boolean>(false)
 const { itemCount, feedbackMessage, clearFeedback } = useCart()
+const feedbackTimeoutId = ref<ReturnType<typeof setTimeout>>()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -79,14 +80,12 @@ onMounted(() => {
   fetchAlbums()
 })
 
-let feedbackTimeoutId: ReturnType<typeof setTimeout> | undefined
-
 const scheduleFeedbackClear = (): void => {
-  if (feedbackTimeoutId) {
-    window.clearTimeout(feedbackTimeoutId)
+  if (feedbackTimeoutId.value) {
+    window.clearTimeout(feedbackTimeoutId.value)
   }
 
-  feedbackTimeoutId = window.setTimeout(() => {
+  feedbackTimeoutId.value = window.setTimeout(() => {
     clearFeedback()
   }, 2500)
 }
@@ -98,8 +97,8 @@ watch(feedbackMessage, (message) => {
 })
 
 onUnmounted(() => {
-  if (feedbackTimeoutId) {
-    window.clearTimeout(feedbackTimeoutId)
+  if (feedbackTimeoutId.value) {
+    window.clearTimeout(feedbackTimeoutId.value)
   }
 })
 </script>

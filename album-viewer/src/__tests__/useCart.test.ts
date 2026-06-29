@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Album } from '../types/album'
 
-const album: Album = {
+const createAlbum = (overrides: Partial<Album> = {}): Album => ({
   id: 1,
   title: 'Kind of Blue',
   artist: 'Miles Davis',
   price: 9.99,
-  image_url: 'kind-of-blue.jpg'
-}
+  image_url: 'kind-of-blue.jpg',
+  ...overrides
+})
+
+const album = createAlbum()
 
 const importCart = async () => {
   vi.resetModules()
@@ -61,5 +64,15 @@ describe('useCart', () => {
     expect(cart.itemCount.value).toBe(0)
     expect(cart.cartItems.value).toEqual([])
     expect(window.localStorage.getItem('album-viewer-cart')).toBe('[]')
+  })
+
+  it('calculates total price from multiple albums in cents', async () => {
+    const { useCart } = await importCart()
+    const cart = useCart()
+
+    cart.addToCart(createAlbum({ id: 2, price: 0.1 }))
+    cart.addToCart(createAlbum({ id: 3, price: 0.2 }))
+
+    expect(cart.totalPrice.value).toBe(0.3)
   })
 })
