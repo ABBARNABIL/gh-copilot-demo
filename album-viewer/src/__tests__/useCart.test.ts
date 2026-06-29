@@ -66,7 +66,7 @@ describe('useCart', () => {
     expect(window.localStorage.getItem('album-viewer-cart')).toBe('[]')
   })
 
-  it('calculates total price from multiple albums in cents', async () => {
+  it('calculates total price from multiple albums', async () => {
     const { useCart } = await importCart()
     const cart = useCart()
 
