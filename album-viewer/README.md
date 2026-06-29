@@ -8,6 +8,7 @@ A modern Vue.js 3 application built with TypeScript that displays albums from th
 - 🎨 Modern, responsive design with gradient background
 - 🖼️ Album cover images with hover effects
 - 💰 Price display for each album
+- 🛒 Cart management with localStorage persistence
 - 📱 Mobile-friendly responsive design
 - ⚡ Built with Vue 3, TypeScript, and Vite
 - 🔧 Full TypeScript support with type safety
@@ -64,7 +65,10 @@ The API should return albums in the following format:
 album-viewer/
 ├── src/
 │   ├── components/
-│   │   └── AlbumCard.vue    # Individual album card component (TypeScript)
+│   │   ├── AlbumCard.vue    # Individual album card component (TypeScript)
+│   │   └── CartPanel.vue    # Cart details and remove controls
+│   ├── composables/
+│   │   └── useCart.ts       # Shared cart state and localStorage persistence
 │   ├── types/
 │   │   └── album.ts         # TypeScript type definitions
 │   ├── App.vue              # Main app component (TypeScript)
