@@ -1,9 +1,29 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>🎵 Album Collection</h1>
-      <p>Discover amazing music albums</p>
+      <div class="header-content">
+        <div>
+          <h1>🎵 Album Collection</h1>
+          <p>Discover amazing music albums</p>
+        </div>
+
+        <div class="cart-wrapper">
+          <button
+            class="cart-toggle"
+            type="button"
+            aria-label="Toggle cart"
+            @click="isCartOpen = !isCartOpen"
+          >
+            🛒 <span>{{ itemCount }}</span>
+          </button>
+          <CartPanel v-if="isCartOpen" @close="isCartOpen = false" />
+        </div>
+      </div>
     </header>
+
+    <div v-if="feedbackMessage" class="cart-feedback" role="status">
+      {{ feedbackMessage }}
+    </div>
 
     <main class="main">
       <div v-if="loading" class="loading">
@@ -28,14 +48,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
+import CartPanel from './components/CartPanel.vue'
+import { useCart } from './composables/useCart'
 import type { Album } from './types/album'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
+const isCartOpen = ref<boolean>(false)
+const { itemCount, feedbackMessage, clearFeedback } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -54,6 +78,24 @@ const fetchAlbums = async (): Promise<void> => {
 onMounted(() => {
   fetchAlbums()
 })
+
+let feedbackTimeout: number | undefined
+
+const stopFeedback = (): void => {
+  if (feedbackTimeout) {
+    window.clearTimeout(feedbackTimeout)
+  }
+
+  feedbackTimeout = window.setTimeout(() => {
+    clearFeedback()
+  }, 2500)
+}
+
+watch(feedbackMessage, (message) => {
+  if (message) {
+    stopFeedback()
+  }
+})
 </script>
 
 <style scoped>
@@ -63,9 +105,17 @@ onMounted(() => {
 }
 
 .header {
-  text-align: center;
   margin-bottom: 3rem;
   color: white;
+  position: relative;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: center;
 }
 
 .header h1 {
@@ -77,6 +127,53 @@ onMounted(() => {
 .header p {
   font-size: 1.2rem;
   opacity: 0.9;
+}
+
+.cart-wrapper {
+  position: relative;
+}
+
+.cart-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cart-toggle:hover {
+  transform: translateY(-2px);
+  background: white;
+}
+
+.cart-toggle span {
+  min-width: 1.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: #667eea;
+  color: white;
+}
+
+.cart-feedback {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  border-radius: 999px;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
 }
 
 .main {
@@ -149,6 +246,10 @@ onMounted(() => {
   
   .header h1 {
     font-size: 2rem;
+  }
+
+  .header-content {
+    flex-direction: column;
   }
   
   .albums-grid {
