@@ -20,6 +20,14 @@ const album: Album = {
   image_url: 'kind-of-blue.jpg'
 }
 
+const secondAlbum: Album = {
+  id: 2,
+  title: 'Blue Train',
+  artist: 'John Coltrane',
+  price: 10.5,
+  image_url: 'blue-train.jpg'
+}
+
 describe('useCart', () => {
   beforeEach(() => {
     vi.stubGlobal('window', {
@@ -33,16 +41,18 @@ describe('useCart', () => {
   })
 
   it('adds albums once and persists them to localStorage', () => {
-    const { addToCart, cartCount, cartItems, feedbackMessage, isInCart } = useCart()
+    const { addToCart, cartCount, cartItems, feedbackMessage, isInCart, totalPrice } = useCart()
 
     addToCart(album)
+    addToCart(secondAlbum)
     addToCart(album)
 
-    expect(cartCount.value).toBe(1)
-    expect(cartItems.value).toEqual([album])
+    expect(cartCount.value).toBe(2)
+    expect(cartItems.value).toEqual([album, secondAlbum])
     expect(isInCart(album.id)).toBe(true)
+    expect(totalPrice.value).toBe(23.49)
     expect(feedbackMessage.value).toBe('Kind of Blue is already in your cart.')
-    expect(window.localStorage.getItem('album-viewer-cart')).toBe(JSON.stringify([album]))
+    expect(window.localStorage.getItem('album-viewer-cart')).toBe(JSON.stringify([album, secondAlbum]))
   })
 
   it('removes albums and updates persisted cart data', () => {

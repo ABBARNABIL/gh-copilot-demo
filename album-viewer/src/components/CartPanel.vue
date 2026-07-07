@@ -5,7 +5,7 @@
         <h2>Your Cart</h2>
         <p>{{ cartCount }} {{ cartCount === 1 ? 'album' : 'albums' }}</p>
       </div>
-      <button class="close-btn" type="button" aria-label="Close cart" @click="$emit('close')">×</button>
+      <button class="close-btn" type="button" @click="$emit('close')">Close</button>
     </div>
 
     <div v-if="cartItems.length === 0" class="empty-cart">
@@ -21,7 +21,12 @@
           <p>{{ album.artist }}</p>
           <strong>${{ album.price.toFixed(2) }}</strong>
         </div>
-        <button class="remove-btn" type="button" @click="removeFromCart(album.id)">
+        <button
+          class="remove-btn"
+          type="button"
+          :aria-label="`Remove ${album.title} from cart`"
+          @click="removeFromCart(album.id)"
+        >
           Remove
         </button>
       </li>
@@ -81,14 +86,14 @@ const { cartItems, cartCount, totalPrice, removeFromCart } = useCart()
 }
 
 .close-btn {
-  width: 36px;
-  height: 36px;
+  min-height: 36px;
+  padding: 0 0.9rem;
   border: 2px solid rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
+  border-radius: 999px;
   background: transparent;
   color: white;
-  font-size: 1.5rem;
-  line-height: 1;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
