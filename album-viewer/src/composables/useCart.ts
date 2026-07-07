@@ -33,7 +33,7 @@ const saveCart = (): void => {
 export const useCart = () => {
   const cartCount = computed(() => cartItems.value.length)
   const totalPrice = computed<number>(() =>
-    cartItems.value.reduce((total, album) => total + Math.round(album.price * 100), 0) / 100
+    Math.round(cartItems.value.reduce((total, album) => total + album.price, 0) * 100) / 100
   )
 
   const isInCart = (albumId: number): boolean =>

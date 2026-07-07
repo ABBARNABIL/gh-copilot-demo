@@ -94,4 +94,17 @@ describe('useCart', () => {
     expect(cartItems.value).toEqual([])
     expect(cartCount.value).toBe(0)
   })
+
+  it('starts with an empty cart when persisted cart data is not an array', async () => {
+    vi.resetModules()
+    vi.stubGlobal('window', {
+      localStorage: createLocalStorage({ 'album-viewer-cart': '{"items":[]}' })
+    })
+
+    const { useCart: useFreshCart } = await import('./useCart')
+    const { cartItems, cartCount } = useFreshCart()
+
+    expect(cartItems.value).toEqual([])
+    expect(cartCount.value).toBe(0)
+  })
 })
