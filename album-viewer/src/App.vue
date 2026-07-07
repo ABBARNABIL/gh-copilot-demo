@@ -54,7 +54,7 @@ const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showCart = ref<boolean>(false)
 const { cartCount, feedbackMessage, clearFeedback } = useCart()
-let feedbackTimeout: number | undefined
+const feedbackTimeout = ref<number | undefined>()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -75,18 +75,18 @@ onMounted(() => {
 })
 
 watch(feedbackMessage, (message) => {
-  if (feedbackTimeout) {
-    window.clearTimeout(feedbackTimeout)
+  if (feedbackTimeout.value) {
+    window.clearTimeout(feedbackTimeout.value)
   }
 
   if (message) {
-    feedbackTimeout = window.setTimeout(clearFeedback, 4000)
+    feedbackTimeout.value = window.setTimeout(clearFeedback, 4000)
   }
 })
 
 onUnmounted(() => {
-  if (feedbackTimeout) {
-    window.clearTimeout(feedbackTimeout)
+  if (feedbackTimeout.value) {
+    window.clearTimeout(feedbackTimeout.value)
   }
 })
 </script>
