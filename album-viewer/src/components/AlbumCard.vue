@@ -21,20 +21,31 @@
     </div>
     
     <div class="album-actions">
-      <button class="btn btn-primary">Add to Cart</button>
+      <button
+        class="btn btn-primary"
+        :class="{ 'btn-in-cart': isAlbumInCart }"
+        type="button"
+        @click="addToCart(album)"
+      >
+        {{ isAlbumInCart ? 'In Cart' : 'Add to Cart' }}
+      </button>
       <button class="btn btn-secondary">Preview</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useCart } from '../composables/useCart'
 import type { Album } from '../types/album'
 
 interface Props {
   album: Album
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const { addToCart, isInCart } = useCart()
+const isAlbumInCart = computed(() => isInCart(props.album.id))
 
 const handleImageError = (event: Event): void => {
   const target = event.target as HTMLImageElement
@@ -165,6 +176,14 @@ const handleImageError = (event: Event): void => {
 .btn-primary:hover {
   background: #5a6fd8;
   transform: translateY(-2px);
+}
+
+.btn-in-cart {
+  background: #4caf50;
+}
+
+.btn-in-cart:hover {
+  background: #3f9142;
 }
 
 .btn-secondary {

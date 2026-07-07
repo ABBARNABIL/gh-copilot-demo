@@ -1,9 +1,23 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>🎵 Album Collection</h1>
-      <p>Discover amazing music albums</p>
+      <div class="header-content">
+        <div>
+          <h1>🎵 Album Collection</h1>
+          <p>Discover amazing music albums</p>
+        </div>
+        <button class="cart-toggle" type="button" @click="showCart = !showCart">
+          🛒 <span>{{ cartCount }}</span>
+        </button>
+      </div>
     </header>
+
+    <CartPanel v-if="showCart" @close="showCart = false" />
+
+    <div v-if="feedbackMessage" class="toast" role="status">
+      {{ feedbackMessage }}
+      <button type="button" aria-label="Dismiss notification" @click="clearFeedback">×</button>
+    </div>
 
     <main class="main">
       <div v-if="loading" class="loading">
@@ -31,11 +45,15 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
+import CartPanel from './components/CartPanel.vue'
+import { useCart } from './composables/useCart'
 import type { Album } from './types/album'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
+const showCart = ref<boolean>(false)
+const { cartCount, feedbackMessage, clearFeedback } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -63,9 +81,18 @@ onMounted(() => {
 }
 
 .header {
-  text-align: center;
   margin-bottom: 3rem;
   color: white;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
 }
 
 .header h1 {
@@ -77,6 +104,64 @@ onMounted(() => {
 .header p {
   font-size: 1.2rem;
   opacity: 0.9;
+}
+
+.cart-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cart-toggle:hover {
+  background: white;
+  color: #667eea;
+}
+
+.cart-toggle span {
+  min-width: 1.75rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  background: white;
+  color: #667eea;
+}
+
+.cart-toggle:hover span {
+  background: #667eea;
+  color: white;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.9rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(51, 51, 51, 0.94);
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transform: translateX(-50%);
+}
+
+.toast button {
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 
 .main {
@@ -150,7 +235,15 @@ onMounted(() => {
   .header h1 {
     font-size: 2rem;
   }
-  
+
+  .header-content {
+    align-items: flex-start;
+  }
+
+  .cart-toggle {
+    padding: 0.6rem 0.9rem;
+  }
+   
   .albums-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
