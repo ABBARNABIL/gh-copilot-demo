@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
 import CartPanel from './components/CartPanel.vue'
@@ -54,6 +54,7 @@ const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showCart = ref<boolean>(false)
 const { cartCount, feedbackMessage, clearFeedback } = useCart()
+let feedbackTimeout: number | undefined
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -71,6 +72,22 @@ const fetchAlbums = async (): Promise<void> => {
 
 onMounted(() => {
   fetchAlbums()
+})
+
+watch(feedbackMessage, (message) => {
+  if (feedbackTimeout) {
+    window.clearTimeout(feedbackTimeout)
+  }
+
+  if (message) {
+    feedbackTimeout = window.setTimeout(clearFeedback, 4000)
+  }
+})
+
+onUnmounted(() => {
+  if (feedbackTimeout) {
+    window.clearTimeout(feedbackTimeout)
+  }
 })
 </script>
 
