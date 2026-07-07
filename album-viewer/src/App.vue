@@ -14,7 +14,7 @@
 
     <CartPanel v-if="showCart" @close="showCart = false" />
 
-    <div v-if="feedbackMessage" class="toast" role="status">
+    <div v-if="feedbackMessage" class="toast" role="status" aria-live="polite">
       {{ feedbackMessage }}
       <button type="button" aria-label="Dismiss notification" @click="clearFeedback">×</button>
     </div>

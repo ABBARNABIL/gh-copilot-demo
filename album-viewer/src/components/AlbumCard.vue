@@ -24,6 +24,7 @@
       <button
         class="btn btn-primary"
         :class="{ 'btn-in-cart': isAlbumInCart }"
+        :aria-pressed="isAlbumInCart"
         type="button"
         @click="addToCart(album)"
       >
